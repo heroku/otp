@@ -1047,13 +1047,14 @@ enc_hs(#client_hello{client_version = {Major, Minor},
 		     cipher_suites = CipherSuites,
 		     compression_methods = CompMethods, 
 		     renegotiation_info = RenegotiationInfo,
-		     hash_signs = HashSigns}, _Version) ->
+		     hash_signs = HashSigns,
+		     extensions = Extensions}, _Version) ->
     SIDLength = byte_size(SessionID),
     BinCompMethods = iolist_to_binary(CompMethods),
     CmLength = byte_size(BinCompMethods),
     BinCipherSuites = iolist_to_binary(CipherSuites),
     CsLength = byte_size(BinCipherSuites),
-    Extensions0 = hello_extensions(RenegotiationInfo),
+    Extensions0 = hello_extensions(RenegotiationInfo) ++ Extensions,
     Extensions1 = if
 		      Major == 3, Minor >=3 -> Extensions0 ++ hello_extensions(HashSigns);
 		      true -> Extensions0
@@ -1069,10 +1070,11 @@ enc_hs(#server_hello{server_version = {Major, Minor},
 		     session_id = Session_ID,
 		     cipher_suite = Cipher_suite,
 		     compression_method = Comp_method,
-		     renegotiation_info = RenegotiationInfo}, _Version) ->
+		     renegotiation_info = RenegotiationInfo,
+		     extensions = Extensions}, _Version) ->
     SID_length = byte_size(Session_ID),
-    Extensions  = hello_extensions(RenegotiationInfo),
-    ExtensionsBin = enc_hello_extensions(Extensions),
+    Extensions1  = hello_extensions(RenegotiationInfo) ++ Extensions,
+    ExtensionsBin = enc_hello_extensions(Extensions1),
     {?SERVER_HELLO, <<?BYTE(Major), ?BYTE(Minor), Random:32/binary,
 		     ?BYTE(SID_length), Session_ID/binary,
                      Cipher_suite/binary, ?BYTE(Comp_method), ExtensionsBin/binary>>};
