@@ -1189,7 +1189,10 @@ enc_hello_extensions([{sni, #sni{hostname = HostName}} | Rest], Acc) ->
 			 << ?UINT16(?SNI_EXT),
 			    ?UINT16((byte_size(ServerNameList))),
 			    ServerNameList/binary,
-			    Acc/binary >>).
+			    Acc/binary >>);
+enc_hello_extensions([{npn, true} | Rest], Acc) ->
+    enc_hello_extensions(Rest,
+			 << ?UINT16(?NPN_EXT), ?UINT16(0), Acc/binary >>).
 
 
 
