@@ -108,7 +108,8 @@
 	  cipher_suite,       % cipher_suites
 	  compression_method, % compression_method
 	  renegotiation_info,
-	  hash_signs          % supported combinations of hashes/signature algos
+	  hash_signs,         % supported combinations of hashes/signature algos
+	  extensions
 	 }).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

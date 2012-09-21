@@ -880,6 +880,9 @@ dec_hs(_Version, ?SERVER_HELLO, <<?BYTE(Major), ?BYTE(Minor), Random:32/binary,
 					   undefined),
     HashSigns = proplists:get_value(hash_signs, HelloExtensions,
 					   undefined),
+    RemainingExts = lists:foldl(fun proplists:delete/2,
+                                HelloExtensions,
+                                [renegotiation_info, hash_signs]),
     #server_hello{
 	server_version = {Major,Minor},
 	random = Random,
@@ -887,7 +890,9 @@ dec_hs(_Version, ?SERVER_HELLO, <<?BYTE(Major), ?BYTE(Minor), Random:32/binary,
 	cipher_suite = Cipher_suite,
 	compression_method = Comp_method,
 	renegotiation_info = RenegotiationInfo,
-	hash_signs = HashSigns};
+	hash_signs = HashSigns,
+	extensions = RemainingExts
+    };
 dec_hs(_Version, ?CERTIFICATE, <<?UINT24(ACLen), ASN1Certs:ACLen/binary>>) ->
     #certificate{asn1_certificates = certs_to_list(ASN1Certs)};
 
