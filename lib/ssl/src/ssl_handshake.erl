@@ -980,6 +980,18 @@ dec_hello_extensions(<<?UINT16(?SIGNATURE_ALGORITHMS_EXT), ?UINT16(Len),
     dec_hello_extensions(Rest, [{hash_signs,
 				 #hash_sign_algos{hash_sign_algos = HashSignAlgos}} | Acc]);
 
+dec_hello_extensions(<<?UINT16(?SNI_EXT), ?UINT16(Len),
+                       ExtData:Len/binary, Rest/binary>>, Acc) ->
+    %% ServerNameList:16, NameType:8
+    <<?UINT16(_ServerNameList), ?BYTE(0),
+      ?UINT16(HostLen), Hostname:HostLen/binary>> = ExtData,
+    TextHostname = binary_to_list(Hostname),
+    case inet_parse:domain(TextHostname) of
+        true -> dec_hello_extensions(Rest,
+                    [{sni, #sni{hostname = TextHostname}} | Acc]);
+        false -> dec_hello_extensions(Rest, Acc)
+    end;
+
 %% Ignore data following the ClientHello (i.e.,
 %% extensions) if not understood.
 dec_hello_extensions(<<?UINT16(_), ?UINT16(Len), _Unknown:Len/binary, Rest/binary>>, Acc) ->
