@@ -248,6 +248,11 @@
 	  hostname = undefined
 	 }).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Next Protocol Negotiation RFC draft-agl-tls-nextprotoneg-03
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+-define(NPN_EXT, 13172).
+
 -endif. % -ifdef(ssl_handshake).
 
 

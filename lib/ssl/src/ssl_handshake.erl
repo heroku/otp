@@ -1002,6 +1002,9 @@ dec_hello_extensions(<<?UINT16(?SNI_EXT), ?UINT16(Len),
 	    dec_hello_extensions(Rest, Acc)
     end;
 
+dec_hello_extensions(<<?UINT16(?NPN_EXT), ?UINT16(0), Rest/binary>>, Acc) ->
+    dec_hello_extensions(Rest, [{npn, true} | Acc]);
+
 %% Ignore data following the ClientHello (i.e.,
 %% extensions) if not understood.
 dec_hello_extensions(<<?UINT16(_), ?UINT16(Len), _Unknown:Len/binary, Rest/binary>>, Acc) ->
