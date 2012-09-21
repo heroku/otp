@@ -844,6 +844,9 @@ dec_hs(_Version, ?CLIENT_HELLO, <<?BYTE(Major), ?BYTE(Minor), Random:32/binary,
 					   undefined),
     HashSigns = proplists:get_value(hash_signs, HelloExtensions,
 					   undefined),
+    RemainingExts = lists:foldl(fun proplists:delete/2,
+                                HelloExtensions,
+                                [renegotiation_info, hash_signs]),
     #client_hello{
 	client_version = {Major,Minor},
 	random = Random,
@@ -851,7 +854,8 @@ dec_hs(_Version, ?CLIENT_HELLO, <<?BYTE(Major), ?BYTE(Minor), Random:32/binary,
 	cipher_suites = from_2bytes(CipherSuites),
 	compression_methods = Comp_methods,
 	renegotiation_info = RenegotiationInfo,
-	hash_signs = HashSigns
+	hash_signs = HashSigns,
+	extensions = RemainingExts
        };
 
 dec_hs(_Version, ?SERVER_HELLO, <<?BYTE(Major), ?BYTE(Minor), Random:32/binary,

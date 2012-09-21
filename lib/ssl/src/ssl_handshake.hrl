@@ -97,7 +97,8 @@
 	  cipher_suites,      % cipher_suites<2..2^16-1>
 	  compression_methods, % compression_methods<1..2^8-1>,
 	  renegotiation_info,
-	  hash_signs          % supported combinations of hashes/signature algos
+	  hash_signs,         % supported combinations of hashes/signature algos
+	  extensions
 	 }).
 
 -record(server_hello, {
