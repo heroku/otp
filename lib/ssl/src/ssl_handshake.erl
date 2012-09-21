@@ -1178,7 +1178,19 @@ enc_hello_extensions([#hash_sign_algos{hash_sign_algos = HashSignAlgos} | Rest],
 		       {Hash, Sign} <- HashSignAlgos >>,
     ListLen = byte_size(SignAlgoList),
     Len = ListLen + 2,
-    enc_hello_extensions(Rest, <<?UINT16(?SIGNATURE_ALGORITHMS_EXT), ?UINT16(Len), ?UINT16(ListLen), SignAlgoList/binary, Acc/binary>>).
+    enc_hello_extensions(Rest, <<?UINT16(?SIGNATURE_ALGORITHMS_EXT), ?UINT16(Len), ?UINT16(ListLen), SignAlgoList/binary, Acc/binary>>);
+
+enc_hello_extensions([{sni, #sni{hostname = HostName}} | Rest], Acc) ->
+    HostNameBin = list_to_binary(HostName),
+    ServerName = <<?BYTE(0), ?UINT16((byte_size(HostNameBin))),
+		   HostNameBin/binary>>,
+    ServerNameList = <<?UINT16((byte_size(ServerName))), ServerName/binary>>,
+    enc_hello_extensions(Rest,
+			 << ?UINT16(?SNI_EXT),
+			    ?UINT16((byte_size(ServerNameList))),
+			    ServerNameList/binary,
+			    Acc/binary >>).
+
 
 
 from_3bytes(Bin3) ->
