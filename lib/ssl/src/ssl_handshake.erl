@@ -1002,8 +1002,12 @@ dec_hello_extensions(<<?UINT16(?SNI_EXT), ?UINT16(Len),
 	    dec_hello_extensions(Rest, Acc)
     end;
 
-dec_hello_extensions(<<?UINT16(?NPN_EXT), ?UINT16(0), Rest/binary>>, Acc) ->
-    dec_hello_extensions(Rest, [{npn, true} | Acc]);
+dec_hello_extensions(<< ?UINT16(?NPN_EXT),
+                        ?UINT16(ExtLen),
+                        ExtData:ExtLen/binary,
+                        Rest/binary >>, Acc) ->
+    Names = dec_npn_extension(ExtData),
+    dec_hello_extensions(Rest, [{npn, #npn{protocols = Names}} | Acc]);
 
 %% Ignore data following the ClientHello (i.e.,
 %% extensions) if not understood.
@@ -1012,6 +1016,12 @@ dec_hello_extensions(<<?UINT16(_), ?UINT16(Len), _Unknown:Len/binary, Rest/binar
 %% This theoretically should not happen if the protocol is followed, but if it does it is ignored.
 dec_hello_extensions(_, Acc) ->
     Acc.
+
+%% Require that the protocol name list decodes _exactly_
+dec_npn_extension(<<>>) -> [];
+dec_npn_extension(<< ?BYTE(NameLen), Name:NameLen/binary, Rest/binary >>)
+  when NameLen > 0 ->
+    [ Name | dec_npn_extension(Rest) ].
 
 encrypted_premaster_secret(Secret, RSAPublicKey) -> 
     try 
