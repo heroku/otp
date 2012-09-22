@@ -1200,9 +1200,15 @@ enc_hello_extensions([{sni, #sni{hostname = HostName}} | Rest], Acc) ->
 			    ?UINT16((byte_size(ServerNameList))),
 			    ServerNameList/binary,
 			    Acc/binary >>);
-enc_hello_extensions([{npn, true} | Rest], Acc) ->
+enc_hello_extensions([{npn, #npn{protocols = Names}} | Rest], Acc) ->
+    NameList = << << ?BYTE((byte_size(Name))), Name/binary >>
+		  || Name <- Names,
+                     is_binary(Name),
+                     Name =/= <<>> >>,
     enc_hello_extensions(Rest,
-			 << ?UINT16(?NPN_EXT), ?UINT16(0), Acc/binary >>).
+			 << ?UINT16(?NPN_EXT),
+			    ?UINT16((byte_size(NameList))), NameList/binary,
+			    Acc/binary >>).
 
 
 
