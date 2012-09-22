@@ -949,7 +949,7 @@ dec_hs(_Version, ?FINISHED, VerifyData) ->
 
 dec_hs(_Version, ?NEXT_PROTOCOL,
        << ?BYTE(ProtoLen), Proto:ProtoLen/binary,
-          ?BYTE(PaddingLen), _Padding:PaddingLen/binary >>)
+	  ?BYTE(PaddingLen), _Padding:PaddingLen/binary >>)
   when PaddingLen =:= (32 - (ProtoLen + 2) rem 32) ->
     #next_protocol{selected_protocol = Proto};
 
@@ -1010,9 +1010,9 @@ dec_hello_extensions(<<?UINT16(?SNI_EXT), ?UINT16(Len),
     end;
 
 dec_hello_extensions(<< ?UINT16(?NPN_EXT),
-                        ?UINT16(ExtLen),
-                        ExtData:ExtLen/binary,
-                        Rest/binary >>, Acc) ->
+			?UINT16(ExtLen),
+			ExtData:ExtLen/binary,
+			Rest/binary >>, Acc) ->
     Names = dec_npn_extension(ExtData),
     dec_hello_extensions(Rest, [{npn, #npn{protocols = Names}} | Acc]);
 
@@ -1218,8 +1218,8 @@ enc_hello_extensions([{sni, #sni{hostname = HostName}} | Rest], Acc) ->
 enc_hello_extensions([{npn, #npn{protocols = Names}} | Rest], Acc) ->
     NameList = << << ?BYTE((byte_size(Name))), Name/binary >>
 		  || Name <- Names,
-                     is_binary(Name),
-                     Name =/= <<>> >>,
+		     is_binary(Name),
+		     Name =/= <<>> >>,
     enc_hello_extensions(Rest,
 			 << ?UINT16(?NPN_EXT),
 			    ?UINT16((byte_size(NameList))), NameList/binary,
