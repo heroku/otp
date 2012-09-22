@@ -64,7 +64,7 @@
 %%        certificate(11), server_key_exchange (12),
 %%        certificate_request(13), server_hello_done(14),
 %%        certificate_verify(15), client_key_exchange(16),
-%%        finished(20), (255)
+%%        finished(20), next_protocol(67), (255)
 %%    } HandshakeType;
 
 -define(HELLO_REQUEST, 0).
@@ -78,6 +78,7 @@
 -define(CERTIFICATE_VERIFY, 15).
 -define(CLIENT_KEY_EXCHANGE, 16).
 -define(FINISHED, 20).
+-define(NEXT_PROTOCOL, 67).
 
 -record(random, {
 	  gmt_unix_time, % uint32
@@ -256,6 +257,10 @@
 -record(npn, {
 	  protocols = []
 	 }).
+
+-record(next_protocol, {
+          selected_protocol
+         }).
 
 -endif. % -ifdef(ssl_handshake).
 

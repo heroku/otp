@@ -946,6 +946,13 @@ dec_hs(_Version, ?CLIENT_KEY_EXCHANGE, PKEPMS) ->
     #client_key_exchange{exchange_keys = PKEPMS};
 dec_hs(_Version, ?FINISHED, VerifyData) ->
     #finished{verify_data = VerifyData};
+
+dec_hs(_Version, ?NEXT_PROTOCOL,
+       << ?BYTE(ProtoLen), Proto:ProtoLen/binary,
+          ?BYTE(PaddingLen), _Padding:PaddingLen/binary >>)
+  when PaddingLen =:= (32 - (ProtoLen + 2) rem 32) ->
+    #next_protocol{selected_protocol = Proto};
+
 dec_hs(_, _, _) ->
     throw(?ALERT_REC(?FATAL, ?HANDSHAKE_FAILURE)).
 
@@ -1135,6 +1142,14 @@ enc_hs(#client_key_exchange{exchange_keys = ExchangeKeys}, Version) ->
 enc_hs(#certificate_verify{signature = BinSig, hashsign_algorithm = HashSign}, Version) ->
     EncSig = enc_sign(HashSign, BinSig, Version),
     {?CERTIFICATE_VERIFY, EncSig};
+
+enc_hs(#next_protocol{selected_protocol=Proto}, _Version) ->
+    ProtoLen = byte_size(Proto),
+    PaddingLen = 32 - ( (ProtoLen + 2) rem 32),
+    {?NEXT_PROTOCOL,
+     << ?BYTE(ProtoLen), Proto/binary,
+        ?BYTE(PaddingLen), 0:(PaddingLen * 8) >>};
+
 enc_hs(#finished{verify_data = VerifyData}, _Version) ->
     {?FINISHED, VerifyData}.
 
